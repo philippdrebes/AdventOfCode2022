@@ -15,6 +15,7 @@ fn main() -> io::Result<()> {
         .lines()
         .into_iter()
         .map(|x| x.expect("encountered unexpected value"))
+        .step_by(3)
         .map(|x| process_line(x))
         .sum();
 
@@ -25,7 +26,16 @@ fn main() -> io::Result<()> {
 
 fn process_line(input: String) -> u32 {
     let m = find_match(input).expect("no match found");
-    let val = m as u32;
+    return get_char_value(m);
+}
+
+
+fn process_lines(input: Vec<String>) {
+   input.sort_by(|a, b| a.len().cmp(b.len())); 
+}
+
+fn get_char_value(chr: char) -> u32 {
+    let val = chr as u32;
 
     if val > 97 {
         return val - 96;
@@ -52,15 +62,3 @@ fn find_match(input: String) -> Result<char, Box<dyn std::error::Error>> {
 
     return Err(Box::from("could not find match"));
 }
-
-// fn alphabet_position(text: &str) -> String {
-//     let s = text
-//         .chars()
-//         .into_iter()
-//         .filter(|&c| c.is_alphabetic())
-//         .map(|c| c.to_ascii_uppercase())
-//         .map(|c| c as u8)
-//         .map(|c| (c - 64u8).to_string())
-//         .collect();
-//     s
-// }

@@ -1,6 +1,6 @@
-use std::{env, io};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::{env, io};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum Hand {
@@ -66,7 +66,8 @@ fn get_my_hand(desired_outcome: &Outcome, opponent_hand: &Hand) -> u8 {
             Hand::Rock => Hand::Scissors as u8,
             Hand::Paper => Hand::Rock as u8,
             Hand::Scissors => Hand::Paper as u8,
-        }
+        },
         &Outcome::Draw => *opponent_hand as u8,
     };
 }
+
