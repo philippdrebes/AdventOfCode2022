@@ -11,27 +11,47 @@ fn main() -> io::Result<()> {
     let file = File::open(file_path)?;
     let reader = BufReader::new(file);
 
-    let total_sum: u32 = reader
-        .lines()
-        .into_iter()
-        .map(|x| x.expect("encountered unexpected value"))
-        .step_by(3)
-        .map(|x| process_line(x))
-        .sum();
+    let mut total_sum: u32 = 0;
+
+    let lines: Vec<String> = reader.lines().map(|x| x.expect("asdf")).collect();
+
+    let mut step = 3;
+    for (i, line) in lines.iter().step_by(step).enumerate() {
+        let idx = i * 3;
+        let values = vec![line, &lines[idx + 1], &lines[idx + 2]];
+        total_sum += process_lines(values).expect("could not process lines");
+    }
 
     println!("total sum: {}", total_sum);
 
     Ok(())
 }
 
+fn process_lines(input: Vec<&String>) -> Result<u32, Box<dyn std::error::Error>> {
+    // let mut bags: Vec<Vec<char>> = Vec::new();
+    // for i in input {
+    //     bags.push(i.chars().collect());
+    // }
+
+    for c0 in input[0].chars().into_iter() {
+        let found_match = input[1..]
+            .iter()
+            .map(|b| b.contains(c0))
+            .reduce(|c, p| c && p);
+
+        if found_match.expect("process_lines: could not find match in bags") {
+            return Ok(get_char_value(c0.clone()));
+        }
+    }
+
+    return Err(Box::from(
+        "process_lines: did not find any matches. this should not happen.",
+    ));
+}
+
 fn process_line(input: String) -> u32 {
     let m = find_match(input).expect("no match found");
     return get_char_value(m);
-}
-
-
-fn process_lines(input: Vec<String>) {
-   input.sort_by(|a, b| a.len().cmp(b.len())); 
 }
 
 fn get_char_value(chr: char) -> u32 {
