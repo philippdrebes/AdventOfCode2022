@@ -44,16 +44,13 @@ fn main() -> io::Result<()> {
         // );
         // println!("-------------------------");
 
-        for _ in 0..m.count {
-            let mut item: char = ' ';
-            let src_idx: usize = m.source as usize - 1;
-            let trgt_idx: usize = m.target as usize - 1;
-            if let Some(src) = stacks.get_mut(src_idx) {
-                item = src.pop().expect("element in stack");
-            }
-
+        let src_idx: usize = m.source as usize - 1;
+        let trgt_idx: usize = m.target as usize - 1;
+        if let Some(src) = stacks.get_mut(src_idx) {
+            let start_idx = src.len() - m.count as usize;
+            let mut items: Vec<_> = src.splice(start_idx..src.len(), []).collect();
             if let Some(trgt) = stacks.get_mut(trgt_idx) {
-                trgt.push(item);
+                trgt.append(&mut items);
             }
         }
     }
