@@ -4,22 +4,34 @@ use std::{char, env, io};
 
 struct Parser {
     position: i32,
-    buffer: Vec<char>,
+    buffer: [char; 3],
 }
 
 impl Parser {
     fn new() -> Self {
         Parser {
             position: 0,
-            buffer: Vec::with_capacity(3),
+            buffer: ['@'; 3],
         }
     }
 
     pub fn find_start_position(&mut self, stream: &String) -> i32 {
         for c in stream.chars() {
-            self.buffer[0] = c;
+            self.position = self.position + 1;
+
+            if self.position > self.buffer.len() as i32 {
+                let k = self.buffer.clone();
+
+                if self.buffer.iter().all(|x| x.ne(&c))
+                    && k.iter().unique().len() == self.buffer.len()
+                {
+                    return self.position;
+                }
+            }
+
+            self.buffer[(self.position % 3) as usize] = c;
         }
-        0
+        self.position
     }
 }
 
@@ -28,11 +40,20 @@ mod tests {
     use crate::Parser;
 
     #[test]
-    fn finds_correct_position() {
+    fn finds_correct_position_at_5() {
         let parser = &mut Parser::new();
         assert_eq!(
             parser.find_start_position(&String::from("bvwbjplbgvbhsrlpgdmjqwftvncz")),
             5
+        );
+    }
+
+    #[test]
+    fn finds_correct_position_at_11() {
+        let parser = &mut Parser::new();
+        assert_eq!(
+            parser.find_start_position(&String::from("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")),
+            11
         );
     }
 }
@@ -57,7 +78,8 @@ fn main() -> io::Result<()> {
         // there is no allocation
         let s = String::from_utf8(buf).expect("from_utf8 failed");
 
-        parser.find_start_position(&s);
+        let position = parser.find_start_position(&s);
+        println!("Starting position: {}", position);
 
         // this returns the ownership of the read data to buf
         // there is no allocation
