@@ -1,25 +1,26 @@
+use itertools::Itertools;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::{char, env, io};
-use itertools::Itertools;
 
 struct Parser {
+    size: i32,
     position: i32,
-    buffer: [char; 3],
+    buffer: Vec<char>,
 }
 
 impl Parser {
-    fn new() -> Self {
+    fn new(size: i32) -> Self {
         Parser {
+            size,
             position: 0,
-            buffer: ['@'; 3],
+            buffer: vec!['@'; size as usize],
         }
     }
 
     pub fn find_start_position(&mut self, stream: &String) -> i32 {
         for c in stream.chars() {
             self.position = self.position + 1;
-
             if self.position > self.buffer.len() as i32 {
                 let k = self.buffer.clone();
 
@@ -30,7 +31,7 @@ impl Parser {
                 }
             }
 
-            self.buffer[(self.position % 3) as usize] = c;
+            self.buffer[(self.position % self.size) as usize] = c;
         }
         self.position
     }
@@ -42,7 +43,7 @@ mod tests {
 
     #[test]
     fn finds_correct_position_at_5() {
-        let parser = &mut Parser::new();
+        let parser = &mut Parser::new(3);
         assert_eq!(
             parser.find_start_position(&String::from("bvwbjplbgvbhsrlpgdmjqwftvncz")),
             5
@@ -51,10 +52,28 @@ mod tests {
 
     #[test]
     fn finds_correct_position_at_11() {
-        let parser = &mut Parser::new();
+        let parser = &mut Parser::new(3);
         assert_eq!(
             parser.find_start_position(&String::from("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")),
             11
+        );
+    }
+
+    #[test]
+    fn finds_correct_position_at_19() {
+        let parser = &mut Parser::new(13);
+        assert_eq!(
+            parser.find_start_position(&String::from("mjqjpqmgbljsphdztnvjfqwrcgsmlb")),
+            19
+        );
+    }
+
+    #[test]
+    fn finds_correct_position_at_29() {
+        let parser = &mut Parser::new(13);
+        assert_eq!(
+            parser.find_start_position(&String::from("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg")),
+            29
         );
     }
 }
@@ -67,7 +86,7 @@ fn main() -> io::Result<()> {
     let file = File::open(file_path).expect("File not found");
     let mut reader = BufReader::new(file);
 
-    let parser = &mut Parser::new();
+    let parser = &mut Parser::new(13);
 
     let mut buf = Vec::<u8>::new();
     while reader
