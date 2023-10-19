@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::{char, env, io};
+use itertools::Itertools;
 
 struct Parser {
     position: i32,
@@ -23,7 +24,7 @@ impl Parser {
                 let k = self.buffer.clone();
 
                 if self.buffer.iter().all(|x| x.ne(&c))
-                    && k.iter().unique().len() == self.buffer.len()
+                    && k.iter().unique().count() == self.buffer.len()
                 {
                     return self.position;
                 }
