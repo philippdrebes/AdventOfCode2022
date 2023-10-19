@@ -1,8 +1,10 @@
 # Advent of Code 2022 - Rust Edition
 
-## Overview
-
 This repository is dedicated to my journey of solving the [Advent of Code 2022](https://adventofcode.com/2022) challenges using Rust. I am new to Rust and this project aims to serve as a playground for me to explore the language and its features.
+
+> [!NOTE]
+> The solutions may not be the most efficient or idiomatic Rust code, but the main focus is on learning and problem-solving.
+> Feel free to contribute or suggest improvements.
 
 ## Goals
 
@@ -41,9 +43,3 @@ To run the code for a specific day:
 1. Navigate to the corresponding `dayXX` directory.
 2. Run `cargo build` to compile the project.
 3. Run `cargo run` to execute the compiled binary.
-
-## Note
-
-- The solutions may not be the most efficient or idiomatic Rust code, but the main focus is on learning and problem-solving.
-- Feel free to contribute or suggest improvements.
-
