@@ -13,7 +13,7 @@ This repository is dedicated to my journey of solving the [Advent of Code 2022](
 
 The repository is structured as follows:
 
-\```
+```
 .
 ├── README.md
 ├── day01
@@ -27,7 +27,7 @@ The repository is structured as follows:
 ├── day03
 │   ...
 └── day25 (potentially)
-\```
+```
 
 - Each `dayXX` directory represents the challenge for that day.
 - `Cargo.lock` and `Cargo.toml` are Rust's dependency management files.
