@@ -6,6 +6,7 @@ use std::{env, io};
 struct DirectoryNode {
     children: Vec<Node>,
     size: i32,
+    name: String,
 }
 
 struct FileNode {
@@ -18,46 +19,6 @@ enum Node {
     File(FileNode),
 }
 
-struct ChangeDirectoryCommand {
-    target: String,
-}
-
-struct ListCommand {}
-
-trait Command {
-    fn execute<I>(&self, iter: &mut Peekable<I>, current_node: &mut Node) -> Node
-    where
-        I: Iterator<Item = String>,
-        Self: Sized;
-}
-
-impl Command for ListCommand {
-    fn execute<I>(&self, iter: &mut Peekable<I>, current_node: &mut Node) -> Node
-    where
-        I: Iterator<Item = String>,
-    {
-        
-
-
-        Node::File(FileNode {
-            size: 0,
-            name: "".to_string(),
-        })
-    }
-}
-
-impl Command for ChangeDirectoryCommand {
-    fn execute<I>(&self, iter: &mut Peekable<I>, current_node: &mut Node) -> Node
-    where
-        I: Iterator<Item = String>,
-    {
-        Node::File(FileNode {
-            size: 0,
-            name: "".to_string(),
-        })
-    }
-}
-
 fn parse_input<I>(iter: &mut Peekable<I>) -> Node
 where
     I: Iterator<Item = String>,
@@ -66,9 +27,10 @@ where
     let mut node = Node::Directory(DirectoryNode {
         children: vec![],
         size: 0,
+        name: "root".to_string(),
     });
 
-    let mut current_node = node;
+    let mut current_node = &mut node;
 
     'outer: loop {
         let next: Option<String> = iter.next();
@@ -80,18 +42,34 @@ where
         let args = line.split(" ").collect::<Vec<&str>>();
         let command = args[1];
 
-        let cmd: Box<dyn Command> = match command {
-            "cd" => Box::new(ChangeDirectoryCommand {
-                target: args[2].to_string(),
-            }),
-            "ls" => Box::new(ListCommand {}),
+        match command {
+            "cd" => {
+                // execute_change_directory_command(iter, &mut current_node, args[2].to_string()),
+            }
+            "ls" => {
+                while !iter.peek().unwrap().starts_with("$") {
+                    let line = iter.next().unwrap();
+                    let args = line.split(" ").collect::<Vec<&str>>();
+
+                    if line.starts_with("dir") {
+                        let new_node = Node::Directory(DirectoryNode {
+                            name: args[1].to_string(),
+                            children: vec![],
+                            size: 0,
+                        });
+                    } else {
+                        let new_node = Node::File(FileNode {
+                            size: args[0].parse::<i32>().unwrap(),
+                            name: args[1].to_string(),
+                        });
+                    }
+                }
+            }
             _ => panic!("not implemented"),
         };
-
-        cmd.execute(iter, &mut current_node)
     }
 
-    node
+    return node;
 }
 
 #[cfg(test)]
