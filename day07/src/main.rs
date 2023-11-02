@@ -46,6 +46,8 @@ pub fn sh(lines: &mut Peekable<impl Iterator<Item = String>>, sum: &mut usize) -
 
 #[cfg(test)]
 mod tests {
+    use crate::sh;
+
     #[test]
     fn calculate_correct_size() {
         let test_data = "$ cd /
@@ -72,7 +74,7 @@ $ ls
 5626152 d.ext
 7214296 k";
 
-        let (mut lines, mut sum) = (test_data.lines().peekable(), 0);
+        let (mut lines, mut sum) = (test_data.lines().map(|x| x.to_string()).peekable(), 0);
         sh(&mut lines, &mut sum);
         assert_eq!(sum, 95437);
     }
