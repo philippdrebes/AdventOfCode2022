@@ -3,73 +3,45 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::{env, io};
 
-struct DirectoryNode {
-    children: Vec<Node>,
-    size: i32,
-    name: String,
+fn main() -> io::Result<()> {
+    println!("Puzzle 07");
+
+    let args: Vec<String> = env::args().collect();
+    let file_path = &args[1];
+    let file = File::open(file_path).expect("File not found");
+    let reader = BufReader::new(file);
+
+    let (mut lines, mut sum) = (
+        reader
+            .lines()
+            .map(|x| x.expect("valid line string"))
+            .peekable(),
+        0,
+    );
+    sh(&mut lines, &mut sum);
+    println!("{}", sum);
+
+    Ok(())
 }
 
-struct FileNode {
-    size: i32,
-    name: String,
-}
-
-enum Node {
-    Directory(DirectoryNode),
-    File(FileNode),
-}
-
-fn parse_input<I>(iter: &mut Peekable<I>) -> Node
-where
-    I: Iterator<Item = String>,
-{
-    iter.next();
-    let mut node = Node::Directory(DirectoryNode {
-        children: vec![],
-        size: 0,
-        name: "root".to_string(),
-    });
-
-    let mut current_node = &mut node;
-
-    'outer: loop {
-        let next: Option<String> = iter.next();
-        if next == None {
-            break 'outer;
+pub fn sh(lines: &mut Peekable<impl Iterator<Item = String>>, sum: &mut usize) -> usize {
+    let mut size = 0;
+    while let Some(i) = lines.next() {
+        match i.as_str() {
+            "$ cd .." => break,
+            _ if i.starts_with("$ l") => {
+                size = std::iter::from_fn(|| lines.next_if(|i| !i.starts_with('$')))
+                    .filter(|i| !i.starts_with('d'))
+                    .map(|i| i.split(' ').next().unwrap().parse::<usize>().unwrap())
+                    .sum()
+            }
+            _ => size += sh(lines, sum),
         }
-
-        let line = next.unwrap();
-        let args = line.split(" ").collect::<Vec<&str>>();
-        let command = args[1];
-
-        match command {
-            "cd" => {
-                // execute_change_directory_command(iter, &mut current_node, args[2].to_string()),
-            }
-            "ls" => {
-                while !iter.peek().unwrap().starts_with("$") {
-                    let line = iter.next().unwrap();
-                    let args = line.split(" ").collect::<Vec<&str>>();
-
-                    if line.starts_with("dir") {
-                        let new_node = Node::Directory(DirectoryNode {
-                            name: args[1].to_string(),
-                            children: vec![],
-                            size: 0,
-                        });
-                    } else {
-                        let new_node = Node::File(FileNode {
-                            size: args[0].parse::<i32>().unwrap(),
-                            name: args[1].to_string(),
-                        });
-                    }
-                }
-            }
-            _ => panic!("not implemented"),
-        };
     }
-
-    return node;
+    if size <= 100_000 {
+        *sum += size;
+    }
+    size
 }
 
 #[cfg(test)]
@@ -100,25 +72,8 @@ $ ls
 5626152 d.ext
 7214296 k";
 
-        // assert_eq!(func, 95437);
+        let (mut lines, mut sum) = (test_data.lines().peekable(), 0);
+        sh(&mut lines, &mut sum);
+        assert_eq!(sum, 95437);
     }
-}
-
-fn main() -> io::Result<()> {
-    println!("Puzzle 07");
-
-    let args: Vec<String> = env::args().collect();
-    let file_path = &args[1];
-
-    let file = File::open(file_path)?;
-    let reader = BufReader::new(file);
-
-    let mut iter = reader
-        .lines()
-        .map(|x| x.expect("wrong line input"))
-        .peekable();
-
-    parse_input(&mut iter);
-
-    Ok(())
 }
